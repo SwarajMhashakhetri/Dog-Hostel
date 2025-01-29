@@ -2,7 +2,7 @@
 CREATE TYPE "Role" AS ENUM ('OWNER', 'LENDER');
 
 -- CreateEnum
-CREATE TYPE "BookingStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
+CREATE TYPE "BookingStatus" AS ENUM ('AVAILABLE', 'LENT');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -22,7 +22,9 @@ CREATE TABLE "Pet" (
     "age" INTEGER NOT NULL,
     "breed" TEXT NOT NULL,
     "ownerId" INTEGER NOT NULL,
+    "lenderId" INTEGER,
     "specialRequirements" TEXT,
+    "status" "BookingStatus" NOT NULL DEFAULT 'AVAILABLE',
 
     CONSTRAINT "Pet_pkey" PRIMARY KEY ("id")
 );
@@ -34,7 +36,7 @@ CREATE TABLE "Booking" (
     "lenderId" INTEGER NOT NULL,
     "startDate" TIMESTAMP(3) NOT NULL,
     "endDate" TIMESTAMP(3) NOT NULL,
-    "status" "BookingStatus" NOT NULL DEFAULT 'PENDING',
+    "status" "BookingStatus" NOT NULL DEFAULT 'AVAILABLE',
 
     CONSTRAINT "Booking_pkey" PRIMARY KEY ("id")
 );
@@ -44,3 +46,6 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- AddForeignKey
 ALTER TABLE "Pet" ADD CONSTRAINT "Pet_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Pet" ADD CONSTRAINT "Pet_lenderId_fkey" FOREIGN KEY ("lenderId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;

@@ -15,9 +15,8 @@ enum Role {
 }
 
 enum BookingStatus {
-  PENDING
-  APPROVED
-  REJECTED
+  AVAILABLE
+  LENT
 }
 
 model User {
@@ -26,18 +25,24 @@ model User {
   email    String  @unique
   password String
   role     Role    @default(OWNER)
-  pets     Pet[]
+  pets     Pet[]   @relation("Owner") 
+  lentPets Pet[]   @relation("Lender") 
 }
 
 model Pet {
-  id                Int      @id @default(autoincrement())
-  name              String
-  age               Int
-  breed             String
-  ownerId           Int
-  owner             User     @relation(fields: [ownerId], references: [id])
+  id                 Int      @id @default(autoincrement())
+  name               String
+  age                Int
+  breed              String
+  ownerId            Int
+  owner              User     @relation("Owner", fields: [ownerId], references: [id]) 
+  lenderId           Int?  
+  lender             User?    @relation("Lender", fields: [lenderId], references: [id]) 
   specialRequirements String?
+  status             BookingStatus @default(AVAILABLE)
 }
+
+
 
 model Booking {
   id        Int           @id @default(autoincrement())
@@ -45,5 +50,5 @@ model Booking {
   lenderId  Int
   startDate DateTime
   endDate   DateTime
-  status    BookingStatus @default(PENDING)
+  status    BookingStatus @default(AVAILABLE)
 }
