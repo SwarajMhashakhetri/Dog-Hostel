@@ -16,7 +16,7 @@ export async function POST(req: Request) {
 
         const newPet = await prisma.pet.create({
             data: {
-                ownerId,
+                ownerId:Number(ownerId),
                 name,
                 breed,
                 age,
