@@ -1,13 +1,15 @@
 "use client"
+
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { AlertCircle } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { useToast } from "@/components/ui/use-toast"
 
 interface Pet {
   id: number
@@ -15,6 +17,7 @@ interface Pet {
   breed: string
   age: number
   status: string
+  ownerId: number
 }
 
 export default function PetsPage() {
@@ -24,6 +27,7 @@ export default function PetsPage() {
   const [error, setError] = useState<string | null>(null)
   const [newPet, setNewPet] = useState({ name: "", breed: "", age: "" })
   const router = useRouter()
+  const { toast } = useToast()
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -83,6 +87,42 @@ export default function PetsPage() {
     }
   }
 
+  const handleLendPet = async (petId: number) => {
+    if (!session?.user?.id) {
+      setError("User ID not found. Please sign in again.")
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/pets/${petId}/lend`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // This is important for including the session cookie
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Failed to lend pet")
+      }
+
+      const data = await response.json()
+      setPets(pets.map((pet) => (pet.id === petId ? data.pet : pet)))
+      toast({
+        title: "Success",
+        description: "Pet lent successfully",
+      })
+    } catch (err) {
+      toast({
+        title: "Error",
+        description:
+          err instanceof Error ? err.message : "An error occurred while lending the pet. Please try again later.",
+        variant: "destructive",
+      })
+    }
+  }
+
   if (isLoading) {
     return <div className="container mx-auto px-4 py-8">Loading...</div>
   }
@@ -108,7 +148,7 @@ export default function PetsPage() {
                 <Input
                   id="name"
                   value={newPet.name}
-                  onChange={(e:any) => setNewPet({ ...newPet, name: e.target.value })}
+                  onChange={(e) => setNewPet({ ...newPet, name: e.target.value })}
                   required
                 />
               </div>
@@ -117,7 +157,7 @@ export default function PetsPage() {
                 <Input
                   id="breed"
                   value={newPet.breed}
-                  onChange={(e:any) => setNewPet({ ...newPet, breed: e.target.value })}
+                  onChange={(e) => setNewPet({ ...newPet, breed: e.target.value })}
                   required
                 />
               </div>
@@ -128,7 +168,7 @@ export default function PetsPage() {
                 id="age"
                 type="number"
                 value={newPet.age}
-                onChange={(e:any) => setNewPet({ ...newPet, age: e.target.value })}
+                onChange={(e) => setNewPet({ ...newPet, age: e.target.value })}
                 required
               />
             </div>
@@ -150,7 +190,13 @@ export default function PetsPage() {
               <p>Status: {pet.status}</p>
             </CardContent>
             <CardFooter>
-              <Button variant="outline">Request to Borrow</Button>
+              {pet.status === "AVAILABLE" && pet.ownerId !== Number(session?.user?.id) ? (
+                <Button onClick={() => handleLendPet(pet.id)}>Lend Pet</Button>
+              ) : pet.ownerId === Number(session?.user?.id) ? (
+                <Button disabled>Your Pet</Button>
+              ) : (
+                <Button disabled>Currently Lent</Button>
+              )}
             </CardFooter>
           </Card>
         ))}

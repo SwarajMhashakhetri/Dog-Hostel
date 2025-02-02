@@ -10,6 +10,7 @@ import { AlertCircle, UserIcon } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
+import { toast } from "@/components/ui/use-toast"
 
 interface UserData {
   id: number
@@ -73,8 +74,17 @@ export default function MePage() {
       const data = await response.json()
       setUserData(data.user)
       setNewRole(data.user.role)
+      toast({
+        title: "Success",
+        description: `Your role has been updated to ${data.user.role}`,
+      })
     } catch (err) {
       setError("An error occurred while updating your role. Please try again later.")
+      toast({
+        title: "Error",
+        description: "Failed to update role. Please try again.",
+        variant: "destructive",
+      })
     } finally {
       setIsUpdating(false)
     }
@@ -113,21 +123,35 @@ export default function MePage() {
                 <h3 className="text-sm font-medium text-muted-foreground">Email</h3>
                 <p className="text-lg">{userData.email}</p>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
-                <Select value={newRole} onValueChange={setNewRole}>
-                  <SelectTrigger id="role">
-                    <SelectValue placeholder="Select a role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="OWNER">Owner</SelectItem>
-                    <SelectItem value="LENDER">Lender</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="role">Role</Label>
+                  <Select value={newRole} onValueChange={setNewRole}>
+                    <SelectTrigger id="role">
+                      <SelectValue placeholder="Select a role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="OWNER">Owner</SelectItem>
+                      <SelectItem value="LENDER">Lender</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  <p>
+                    <strong>Owner:</strong> You can add your pets to the platform for others to lend.
+                  </p>
+                  <p>
+                    <strong>Lender:</strong> You can lend pets from other owners.
+                  </p>
+                </div>
+                <Button
+                  className="w-full"
+                  onClick={handleRoleChange}
+                  disabled={isUpdating || newRole === userData.role}
+                >
+                  {isUpdating ? "Updating..." : "Update Role"}
+                </Button>
               </div>
-              <Button className="w-full" onClick={handleRoleChange} disabled={isUpdating || newRole === userData.role}>
-                {isUpdating ? "Updating..." : "Update Role"}
-              </Button>
               <Button className="w-full" onClick={() => router.push("/dashboard")}>
                 Go to Dashboard
               </Button>

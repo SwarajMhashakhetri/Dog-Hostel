@@ -66,6 +66,7 @@ export const authOptions = {
     async jwt({ token, user }:any) {
       if (user) {
         token.id = user.id;
+        token.email = user.email;
         token.role = user.role; 
       }
       return token;
@@ -73,6 +74,7 @@ export const authOptions = {
     async session({ session, token } :any) {
       session.user = {
         id: token.id,
+        email :token.email,
         role: token.role, 
       };
       return session;
