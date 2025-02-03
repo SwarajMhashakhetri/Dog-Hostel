@@ -4,8 +4,15 @@ import prisma from "@/db";
 export async function POST(req: Request, { params }: { params: { id: string } }) {
     try {
         const petId = Number(params.id);
+        const pet = await prisma.pet.findUnique({
+            where: { id: petId }
+        });
 
-        const pet = await prisma.pet.update({
+        if (!pet || pet.status !== 'LENT') {
+            return NextResponse.json({ error: "Pet cannot be returned" }, { status: 400 });
+        }
+
+        const updatedPet = await prisma.pet.update({
             where: {
                 id: petId
             },
@@ -15,7 +22,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
             },
         });
 
-        return NextResponse.json({ message: "Pet returned successfully", pet }, { status: 200 });
+        return NextResponse.json({ message: "Pet returned successfully", pet: updatedPet }, { status: 200 });
     } catch (error) {
         console.error(error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

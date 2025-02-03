@@ -39,7 +39,7 @@ export async function POST(req: Request) {
 
 export async function GET() {
     try {
-        const pets = await prisma.pet.findMany({ where: { status: "AVAILABLE" } });
+        const pets = await prisma.pet.findMany();
         return NextResponse.json(pets, { status: 200 });
     } catch (error) {
         console.error(error);

@@ -18,6 +18,7 @@ interface Pet {
   age: number
   status: string
   ownerId: number
+  lenderId?: number | null
 }
 
 export default function PetsPage() {
@@ -76,14 +77,19 @@ export default function PetsPage() {
       })
 
       if (!response.ok) {
-        throw new Error("Failed to add pet")
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to add pet")
       }
 
       const data = await response.json()
-      setPets([...pets, data.pet])
+      await fetchPets();
       setNewPet({ name: "", breed: "", age: "" })
     } catch (err) {
-      setError("An error occurred while adding the pet. Please try again later.")
+      setError(
+        err instanceof Error
+          ? err.message
+          : "An error occurred while adding the pet. Please try again later."
+      )
     }
   }
 
@@ -99,7 +105,7 @@ export default function PetsPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // This is important for including the session cookie
+        credentials: "include",
       })
 
       if (!response.ok) {
@@ -122,6 +128,56 @@ export default function PetsPage() {
       })
     }
   }
+
+  const handleReturnPet = async (petId: number) => {
+    if (!session?.user?.id) {
+      setError("User ID not found. Please sign in again.")
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/pets/${petId}/return`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Failed to return pet")
+      }
+
+      const data = await response.json()
+      setPets(pets.map((pet) => (pet.id === petId ? data.pet : pet)))
+      toast({
+        title: "Success",
+        description: "Pet returned successfully",
+      })
+    } catch (err) {
+      toast({
+        title: "Error",
+        description:
+          err instanceof Error ? err.message : "An error occurred while returning the pet. Please try again later.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const availablePets = pets.filter(pet => {
+    return (
+      pet.status === "AVAILABLE" &&
+      pet.ownerId !== Number(session?.user?.id)
+    )
+  })
+
+  const lentPets = pets.filter(pet => {
+    return (
+      pet.status === "LENT" &&
+      pet.lenderId === Number(session?.user?.id)
+    )
+  })
 
   if (isLoading) {
     return <div className="container mx-auto px-4 py-8">Loading...</div>
@@ -178,29 +234,55 @@ export default function PetsPage() {
       </Card>
 
       <h2 className="text-2xl font-bold mb-4">Available Pets</h2>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {pets.map((pet) => (
-          <Card key={pet.id}>
-            <CardHeader>
-              <CardTitle>{pet.name}</CardTitle>
-              <CardDescription>{pet.breed}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>Age: {pet.age}</p>
-              <p>Status: {pet.status}</p>
-            </CardContent>
-            <CardFooter>
-              {pet.status === "AVAILABLE" && pet.ownerId !== Number(session?.user?.id) ? (
+      {availablePets.length > 0 ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
+          {availablePets.map((pet) => (
+            <Card key={pet.id}>
+              <CardHeader>
+                <CardTitle>{pet.name}</CardTitle>
+                <CardDescription>{pet.breed}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p>Age: {pet.age}</p>
+                <p>Status: {pet.status}</p>
+              </CardContent>
+              <CardFooter>
                 <Button onClick={() => handleLendPet(pet.id)}>Lend Pet</Button>
-              ) : pet.ownerId === Number(session?.user?.id) ? (
-                <Button disabled>Your Pet</Button>
-              ) : (
-                <Button disabled>Currently Lent</Button>
-              )}
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <p className="text-gray-500 mb-8">No available pets to lend.</p>
+      )}
+
+      <h2 className="text-2xl font-bold mb-4">Pets You Can Return</h2>
+      {lentPets.length > 0 ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {lentPets.map((pet) => (
+            <Card key={pet.id}>
+              <CardHeader>
+                <CardTitle>{pet.name}</CardTitle>
+                <CardDescription>{pet.breed}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p>Age: {pet.age}</p>
+                <p>Status: {pet.status}</p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Currently lent to you
+                </p>
+              </CardContent>
+              <CardFooter>
+                <Button onClick={() => handleReturnPet(pet.id)}>
+                  Return Pet
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <p className="text-gray-500">No pets to return.</p>
+      )}
     </div>
   )
 }
@@ -214,4 +296,3 @@ function ErrorMessage({ message }: { message: string }) {
     </Alert>
   )
 }
-
