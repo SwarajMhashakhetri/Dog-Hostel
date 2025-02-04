@@ -4,12 +4,7 @@ import { getServerSession } from "next-auth/next";
 import type { BookingStatus } from "@prisma/client";
 import { authOptions } from "@/app/lib/auth";
 
-// Correct the context parameter typing
-interface Context {
-  params: { id: string };
-}
-
-export async function POST(req: NextRequest, context: Context) {
+export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     console.log("Lend route called");
 
@@ -42,7 +37,7 @@ export async function POST(req: NextRequest, context: Context) {
       );
     }
 
-    const petId = Number(context.params.id); // Updated this line
+    const petId = Number(params.id); // ✅ Using params directly
 
     if (!petId || isNaN(petId)) {
       console.log("Invalid pet ID");
