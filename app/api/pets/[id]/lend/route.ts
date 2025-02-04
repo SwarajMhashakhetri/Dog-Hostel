@@ -4,15 +4,11 @@ import { getServerSession } from "next-auth/next";
 import type { BookingStatus } from "@prisma/client";
 import { authOptions } from "@/app/lib/auth";
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params:  Promise<{ id: string }> }) {
   try {
-    console.log("Lend route called");
-
     const session = await getServerSession(authOptions);
-    console.log("Session:", session);
 
     if (!session || !session.user?.email) {
-      console.log("Unauthorized: No valid session");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -21,14 +17,11 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     });
 
     if (!user) {
-      console.log("User not found");
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    console.log("User role:", user.role);
 
     if (user.role !== "LENDER") {
-      console.log("User is not a LENDER");
       return NextResponse.json(
         {
           error: "Only users with LENDER role can lend pets",
@@ -37,10 +30,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       );
     }
 
-    const petId = Number(params.id); // ✅ Using params directly
+    const petId = Number((await params).id); // 
 
     if (!petId || isNaN(petId)) {
-      console.log("Invalid pet ID");
       return NextResponse.json({ error: "Invalid pet ID" }, { status: 400 });
     }
 
@@ -50,17 +42,14 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     });
 
     if (!existingPet) {
-      console.log("Pet not found");
       return NextResponse.json({ error: "Pet not found" }, { status: 404 });
     }
 
     if (existingPet.status === "LENT") {
-      console.log("Pet is already lent");
       return NextResponse.json({ error: "Pet is already lent" }, { status: 400 });
     }
 
     if (existingPet.ownerId === user.id) {
-      console.log("User trying to lend their own pet");
       return NextResponse.json(
         {
           error: "You cannot lend your own pet",
@@ -83,8 +72,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       },
     });
 
-    console.log("Pet lent successfully:", pet);
-
     return NextResponse.json(
       {
         message: "Pet lent successfully",
@@ -92,8 +79,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Lending error:", error);
+  } catch  {
     return NextResponse.json(
       {
         error: "Failed to process lending request",
