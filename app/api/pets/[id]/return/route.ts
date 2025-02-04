@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db";
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: {
+    params: Promise<{ id: string }>
+}) {
     try {
-        const petId = Number(params.id);
+        const petId = Number((await params).id);
         const pet = await prisma.pet.findUnique({
             where: { id: petId }
         });

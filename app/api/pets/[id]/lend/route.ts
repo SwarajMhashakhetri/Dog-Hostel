@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth/next";
 import type { BookingStatus } from "@prisma/client";
 import { authOptions } from "@/app/lib/auth";
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     console.log("Lend route called");
 
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       );
     }
 
-    const petId = Number(params.id); // ✅ Using params directly
+    const petId = Number((await params).id); // ✅ Using params directly
 
     if (!petId || isNaN(petId)) {
       console.log("Invalid pet ID");
