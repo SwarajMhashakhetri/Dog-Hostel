@@ -27,7 +27,7 @@ export default async function DashboardPage() {
             <p className="text-sm text-muted-foreground">
               We understand that sometimes pet owners need to travel or have commitments that make it difficult to care
               for their pets. At the same time, there are many animal lovers who would love to spend time with a pet but
-              can't commit to full-time ownership. Dog Hostel bridges this gap, creating a community of pet owners and
+              cant commit to full-time ownership. Dog Hostel bridges this gap, creating a community of pet owners and
               pet lovers.
             </p>
           </CardContent>
@@ -40,10 +40,10 @@ export default async function DashboardPage() {
           <CardContent>
             <ul className="list-disc pl-4 space-y-2 text-sm text-muted-foreground">
               <li>Register your pet on our platform</li>
-              <li>Set your pet's availability</li>
+              <li>Set your pets availability</li>
               <li>Review requests from potential pet sitters</li>
               <li>Arrange meet-and-greets</li>
-              <li>Enjoy peace of mind while you're away</li>
+              <li>Enjoy peace of mind while youre away</li>
             </ul>
           </CardContent>
         </Card>
@@ -71,7 +71,7 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">Step 1</div>
-            <p className="text-xs text-muted-foreground">Add your pet's details</p>
+            <p className="text-xs text-muted-foreground">Add your pets details</p>
             <Button className="mt-4 w-full" variant="outline">
               Add Pet <ArrowRight className="ml-2 h-4 w-4" />
             </Button>

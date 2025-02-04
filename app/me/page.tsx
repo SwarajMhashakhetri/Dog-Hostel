@@ -20,7 +20,7 @@ interface UserData {
 }
 
 export default function MePage() {
-  const { data: session, status } = useSession()
+  const { status } = useSession()
   const [userData, setUserData] = useState<UserData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -45,7 +45,7 @@ export default function MePage() {
       const data = await response.json()
       setUserData(data)
       setNewRole(data.role)
-    } catch (err) {
+    } catch {
       setError("An error occurred while fetching your data. Please try again later.")
     } finally {
       setIsLoading(false)
@@ -78,7 +78,7 @@ export default function MePage() {
         title: "Success",
         description: `Your role has been updated to ${data.user.role}`,
       })
-    } catch (err) {
+    } catch {
       setError("An error occurred while updating your role. Please try again later.")
       toast({
         title: "Error",

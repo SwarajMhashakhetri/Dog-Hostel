@@ -6,7 +6,6 @@ import { PawPrintIcon, Shield, Calendar, PhoneCall, Heart, Star } from "lucide-r
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Hero Section */}
       <section className="relative py-24 px-4 bg-gradient-to-b from-accent/20 to-background overflow-hidden">
         <div className="container mx-auto text-center relative z-10">
           <div className="inline-block animate-bounce mb-4">
@@ -16,8 +15,8 @@ export default function LandingPage() {
             A Cozy Stay for Your Furry Friend
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Give your pet a safe, loving, and comfortable place to stay while you're away. Professional care tailored to
-            your dog's needs. 🐾
+            Give your pet a safe, loving, and comfortable place to stay while youre away. Professional care tailored to
+            your dogs needs. 🐾
           </p>
           <div className="space-x-4">
             <Button size="lg" className="text-lg bg-primary hover:bg-primary/90">
@@ -30,11 +29,10 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="py-20 px-4 bg-muted/30">
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold text-center mb-4 text-primary">Why Choose Dog Hostel?</h2>
-          <p className="text-center text-muted-foreground mb-12">Your dog's happiness is our priority! 🐕</p>
+          <p className="text-center text-muted-foreground mb-12">Your dogs happiness is our priority! 🐕</p>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               {
@@ -74,7 +72,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* How It Works Section */}
       <section className="py-20 px-4 bg-gradient-to-b from-secondary/10 to-background">
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold text-center mb-4 text-primary">How It Works</h2>
@@ -117,7 +114,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
       <section className="py-20 px-4 bg-accent/10">
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold text-center mb-4 text-primary">What Pet Parents Say</h2>
@@ -137,8 +133,8 @@ export default function LandingPage() {
                     />
                   </div>
                   <p className="text-lg mb-4 italic">
-                    "My dog had the best time! Safe, clean, and full of love. The staff was incredibly caring and sent
-                    regular updates. Highly recommend!"
+                    My dog had the best time! Safe, clean, and full of love. The staff was incredibly caring and sent
+                    regular updates. Highly recommend!
                   </p>
                   <p className="font-semibold text-primary">Happy Pet Parent</p>
                   <div className="flex gap-1 mt-2">
@@ -153,7 +149,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-20 px-4 bg-gradient-to-r from-primary to-secondary text-primary-foreground">
         <div className="container mx-auto text-center">
           <h2 className="text-3xl font-bold mb-6">Ready to Give Your Dog the Best Stay?</h2>
@@ -166,7 +161,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Fun Footer Banner */}
       <div className="h-4 bg-gradient-to-r from-primary via-secondary to-accent" />
     </div>
   )

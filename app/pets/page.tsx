@@ -47,7 +47,7 @@ export default function PetsPage() {
       }
       const data = await response.json()
       setPets(data)
-    } catch (err) {
+    } catch {
       setError("An error occurred while fetching pets. Please try again later.")
     } finally {
       setIsLoading(false)
@@ -82,7 +82,6 @@ export default function PetsPage() {
         throw new Error(errorData.error || "Failed to add pet")
       }
 
-      const data = await response.json()
       await fetchPets();
       setNewPet({ name: "", breed: "", age: "" })
     } catch (err) {
@@ -197,7 +196,7 @@ export default function PetsPage() {
       <Card className="mb-8">
         <CardHeader>
           <CardTitle>Add a New Pet</CardTitle>
-          <CardDescription>Enter your pet's details below</CardDescription>
+          <CardDescription>Enter your pets details below</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAddPet} className="space-y-4">

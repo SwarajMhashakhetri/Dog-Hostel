@@ -1,8 +1,30 @@
-import prisma from "@/db"; 
+import { AuthOptions, Session, User } from "next-auth";
+import { JWT } from "next-auth/jwt";
+import { Role } from "@prisma/client";
 import CredentialsProvider from "next-auth/providers/credentials";
+import prisma from "@/db";
 import bcrypt from "bcrypt";
 
-export const authOptions = {
+interface CredentialsType {
+  name?: string;
+  email: string;
+  password: string;
+}
+
+interface CustomUser extends User {
+  id: string;
+  name?: string | null;
+  email: string;
+  role: Role;
+}
+
+interface CustomToken extends JWT {
+  id: string;
+  email: string;
+  role: Role;
+}
+
+export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -11,12 +33,12 @@ export const authOptions = {
         email: { label: "Email", type: "text", placeholder: "example@example.com" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials : any) {
-        const { email, password } = credentials;
-
-        if (!email || !password) {
+      async authorize(credentials: CredentialsType | undefined) {
+        if (!credentials?.email || !credentials?.password) {
           throw new Error("Email and password are required");
         }
+
+        const { email, password } = credentials;
 
         const existingUser = await prisma.user.findUnique({
           where: { email },
@@ -41,7 +63,7 @@ export const authOptions = {
         try {
           const newUser = await prisma.user.create({
             data: {
-              name: credentials.name,
+              name: credentials.name || '',
               email,
               password: hashedPassword,
               role: "OWNER",
@@ -61,23 +83,42 @@ export const authOptions = {
       },
     }),
   ],
-  secret: process.env.JWT_SECRET ,
+  secret: process.env.JWT_SECRET,
   callbacks: {
-    async jwt({ token, user }:any) {
+    async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.email = user.email;
-        token.role = user.role; 
+        const customUser = user as CustomUser;
+        token.id = customUser.id;
+        token.email = customUser.email;
+        token.role = customUser.role || "OWNER";
       }
       return token;
     },
-    async session({ session, token } :any) {
+    async session({ session, token }: { session: Session; token: CustomToken }) {
       session.user = {
         id: token.id,
-        email :token.email,
-        role: token.role, 
+        email: token.email,
+        role: token.role,
       };
       return session;
     },
   },
 };
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      email: string;
+      role: Role;
+    };
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+    email: string;
+    role: Role;
+  }
+}
