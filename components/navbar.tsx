@@ -14,9 +14,10 @@ export function Navbar() {
   }
 
   const handleSignOut = async () => {
-    await signOut()
-    router.push("/")
+    const data = await signOut({ redirect: false, callbackUrl: "/" })
+    router.push(data.url)
   }
+
 
   return (
     <nav className="flex items-center justify-between p-4 bg-primary text-primary-foreground">
