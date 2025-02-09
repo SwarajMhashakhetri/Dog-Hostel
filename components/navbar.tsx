@@ -34,6 +34,9 @@ export function Navbar() {
             <Link href="/pets" className="hover:underline">
               Pets
             </Link>
+            <Link href="/chatbot" className="hover:underline">
+              Bhidu
+            </Link>
           </>
         )}
       </div>
