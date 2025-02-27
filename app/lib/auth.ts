@@ -35,15 +35,15 @@ export const authOptions: AuthOptions = {
       },
       async authorize(credentials: CredentialsType | undefined) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email and password are required");
+          throw new Error("EmailAndPasswordRequired");
         }
-
+        
         const { email, password } = credentials;
-
+        
         const existingUser = await prisma.user.findUnique({
           where: { email },
         });
-
+        
         if (existingUser) {
           const isPasswordValid = await bcrypt.compare(password, existingUser.password);
           if (isPasswordValid) {
@@ -54,12 +54,12 @@ export const authOptions: AuthOptions = {
               role: existingUser.role,
             };
           } else {
-            throw new Error("Invalid password");
+            throw new Error("InvalidPassword");
           }
         }
-
+        
         const hashedPassword = await bcrypt.hash(password, 10);
-
+        
         try {
           const newUser = await prisma.user.create({
             data: {
@@ -69,7 +69,7 @@ export const authOptions: AuthOptions = {
               role: "OWNER",
             },
           });
-
+          
           return {
             id: newUser.id.toString(),
             name: newUser.name,
@@ -78,11 +78,15 @@ export const authOptions: AuthOptions = {
           };
         } catch (error) {
           console.error("Error creating user:", error);
-          throw new Error("Failed to create user");
+          throw new Error("FailedToCreateUser");
         }
-      },
+      }
     }),
   ],
+  pages: {
+    signIn: '/auth/signin',
+    error: '/auth/error', 
+  },
   secret: process.env.JWT_SECRET,
   callbacks: {
     async jwt({ token, user }) {
